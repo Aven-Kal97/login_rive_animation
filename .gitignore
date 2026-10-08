@@ -46,3 +46,16 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Compilaciones generadas
+/android/build/
+/oso_login/build/
+
+# Respaldos y archivos temporales
+*.bak
+*.tmp
+*.log
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db

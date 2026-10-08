@@ -1,0 +1,109 @@
+<Rive version="1" kind="fragment">
+  <Artboard name="OsoLogin" width="400" height="400" defaultStateMachineId="0:7">
+    <Fill name="Fondo">
+      <SolidColor name="ColorFondo" colorValue="FFF4F8FF" />
+    </Fill>
+    <Shape name="Boca" x="200" y="275">
+      <Ellipse originX="0.5" originY="0.5" width="30" height="18" />
+      <Fill>
+        <SolidColor colorValue="FF673D35" />
+      </Fill>
+    </Shape>
+    <Shape name="Nariz" x="200" y="244">
+      <Ellipse originX="0.5" originY="0.5" width="38" height="25" />
+      <Fill>
+        <SolidColor colorValue="FF4A3028" />
+      </Fill>
+    </Shape>
+    <Shape name="OjoDerecho" x="240" y="210" id="0:102">
+      <Ellipse originX="0.5" originY="0.5" width="19" height="27" />
+      <Fill>
+        <SolidColor colorValue="FF30221D" />
+      </Fill>
+    </Shape>
+    <Shape name="OjoIzquierdo" x="160" y="210" id="0:101">
+      <Ellipse originX="0.5" originY="0.5" width="19" height="27" />
+      <Fill>
+        <SolidColor colorValue="FF30221D" />
+      </Fill>
+    </Shape>
+    <Shape name="Hocico" x="200" y="260">
+      <Ellipse originX="0.5" originY="0.5" width="105" height="72" />
+      <Fill>
+        <SolidColor colorValue="FFF5D9B8" />
+      </Fill>
+    </Shape>
+    <Shape name="MejillaDerecha" x="270" y="255">
+      <Ellipse originX="0.5" originY="0.5" width="42" height="24" />
+      <Fill>
+        <SolidColor colorValue="FFFFAB9C" />
+      </Fill>
+    </Shape>
+    <Shape name="MejillaIzquierda" x="130" y="255">
+      <Ellipse originX="0.5" originY="0.5" width="42" height="24" />
+      <Fill>
+        <SolidColor colorValue="FFFFAB9C" />
+      </Fill>
+    </Shape>
+    <Shape name="Cabeza" x="200" y="210">
+      <Ellipse originX="0.5" originY="0.5" width="240" height="225" />
+      <Fill>
+        <SolidColor colorValue="FFB98052" />
+      </Fill>
+    </Shape>
+    <Shape name="InteriorOrejaDerecha" x="280" y="135">
+      <Ellipse originX="0.5" originY="0.5" width="55" height="55" />
+      <Fill>
+        <SolidColor colorValue="FFE8B894" />
+      </Fill>
+    </Shape>
+    <Shape name="InteriorOrejaIzquierda" x="120" y="135">
+      <Ellipse originX="0.5" originY="0.5" width="55" height="55" />
+      <Fill>
+        <SolidColor colorValue="FFE8B894" />
+      </Fill>
+    </Shape>
+    <Shape name="OrejaDerecha" x="280" y="135">
+      <Ellipse originX="0.5" originY="0.5" width="90" height="90" />
+      <Fill>
+        <SolidColor colorValue="FF99643E" />
+      </Fill>
+    </Shape>
+    <Shape name="OrejaIzquierda" x="120" y="135">
+      <Ellipse originX="0.5" originY="0.5" width="90" height="90" />
+      <Fill>
+        <SolidColor colorValue="FF99643E" />
+      </Fill>
+    </Shape>
+    <StateMachine name="AnimacionOso" id="0:7">
+      <StateMachineLayer name="CapaPrincipal" id="0:8">
+        <AnyState x="200" y="-120" />
+        <ExitState x="400" y="-120" />
+        <EntryState>
+          <StateTransition stateToId="0:12" />
+        </EntryState>
+        <AnimationState x="200" animationId="0:6" id="0:12" />
+      </StateMachineLayer>
+    </StateMachine>
+    <LinearAnimation name="Parpadeo" fps="60" duration="180" loopValue="loop" id="0:6">
+      <KeyedObject objectId="0:101">
+        <KeyedProperty propertyKey="17">
+          <KeyFrameDouble frame="0" value="1" interpolationType="linear" />
+          <KeyFrameDouble frame="100" value="1" interpolationType="linear" />
+          <KeyFrameDouble frame="105" value="0.08" interpolationType="linear" />
+          <KeyFrameDouble frame="110" value="1" interpolationType="linear" />
+          <KeyFrameDouble frame="180" value="1" interpolationType="linear" />
+        </KeyedProperty>
+      </KeyedObject>
+      <KeyedObject objectId="0:102">
+        <KeyedProperty propertyKey="17">
+          <KeyFrameDouble frame="0" value="1" interpolationType="linear" />
+          <KeyFrameDouble frame="100" value="1" interpolationType="linear" />
+          <KeyFrameDouble frame="105" value="0.08" interpolationType="linear" />
+          <KeyFrameDouble frame="110" value="1" interpolationType="linear" />
+          <KeyFrameDouble frame="180" value="1" interpolationType="linear" />
+        </KeyedProperty>
+      </KeyedObject>
+    </LinearAnimation>
+  </Artboard>
+</Rive>

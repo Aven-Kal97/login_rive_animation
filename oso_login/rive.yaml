@@ -1,0 +1,7 @@
+name: oso_login
+main: OsoLogin
+logs:
+  file: build/rive.log
+  problems: build/problems.log
+
+
