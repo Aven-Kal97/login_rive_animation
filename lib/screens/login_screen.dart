@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:rive/rive.dart';
 
@@ -18,6 +20,32 @@ class _LoginScreenState extends State<LoginScreen> {
   SMITrigger? _trigFail;
   SMINumber? _numLook;
 
+  Timer? _typingDebounce;
+
+  final FocusNode _emailFocusNode = FocusNode();
+  final FocusNode _passwordFocusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+
+    _emailFocusNode.addListener(() {
+      if (_emailFocusNode.hasFocus) {
+        if (_isHandsUp != null) {
+          _isHandsUp!.change(false);
+          _numLook?.value = 50;
+        }
+      } else {
+        _typingDebounce?.cancel();
+        _isChecking?.change(false);
+      }
+    });
+
+    _passwordFocusNode.addListener(() {
+      _isHandsUp?.change(_passwordFocusNode.hasFocus);
+    });
+  }
+
   void _onRiveInit(Artboard artboard) {
     _controller = StateMachineController.fromArtboard(
       artboard,
@@ -25,7 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
 
     if (_controller == null) {
-      debugPrint('Rive: No se encontro Login Machine');
+      debugPrint('Rive: No se encontró Login Machine');
       return;
     }
 
@@ -69,9 +97,25 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 10),
                 TextField(
+                  focusNode: _emailFocusNode,
                   onChanged: (value) {
-                    _isHandsUp?.change(false);
-                    _isChecking?.change(true);
+                    if (_isHandsUp != null) {
+                      _isHandsUp!.change(false);
+                    }
+
+                    if (_isChecking == null) return;
+
+                    _isChecking!.change(true);
+
+                    final look = (value.length / 80 * 100).clamp(0.0, 100.0);
+                    _numLook?.value = look;
+
+                    _typingDebounce?.cancel();
+
+                    _typingDebounce = Timer(const Duration(seconds: 3), () {
+                      if (!mounted) return;
+                      _isChecking?.change(false);
+                    });
                   },
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
@@ -84,9 +128,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 10),
                 TextField(
+                  focusNode: _passwordFocusNode,
                   onChanged: (value) {
-                    _isChecking?.change(false);
-                    _isHandsUp?.change(true);
+                    if (_isChecking != null) {
+                      _isChecking!.change(false);
+                    }
+
+                    if (_isHandsUp == null) return;
+
+                    _isHandsUp!.change(true);
                   },
                   obscureText: _isObscure,
                   decoration: InputDecoration(
@@ -113,5 +163,13 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _emailFocusNode.dispose();
+    _passwordFocusNode.dispose();
+    _typingDebounce?.cancel();
+    super.dispose();
   }
 }
