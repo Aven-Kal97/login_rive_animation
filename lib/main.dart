@@ -12,7 +12,6 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Inicio de sesión con Rive',
       home: LoginScreen(),
     );
   }
