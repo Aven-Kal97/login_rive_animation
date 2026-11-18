@@ -1,6 +1,10 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
+import 'products_screen.dart';
+
 import 'package:rive/rive.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -30,6 +34,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   String? emailError;
   String? passError;
+  String? authError;
+
+  bool _isLoading = false;
 
   bool isValidEmail(String email) {
     final re = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
@@ -43,7 +50,9 @@ class _LoginScreenState extends State<LoginScreen> {
     return re.hasMatch(pass);
   }
 
-  void _onLogin() {
+  Future<void> _onLogin() async {
+    if (_isLoading) return;
+
     final email = emailCtrl.text.trim();
     final pass = passCtrl.text;
 
@@ -58,6 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {
       emailError = emailTypedError;
       passError = passwordTypedError;
+      authError = null;
     });
 
     FocusScope.of(context).unfocus();
@@ -67,9 +77,58 @@ class _LoginScreenState extends State<LoginScreen> {
     _isHandsUp?.change(false);
     _numLook?.value = 50.0;
 
-    if (emailTypedError == null && passwordTypedError == null) {
+    if (emailTypedError != null || passwordTypedError != null) {
+      _trigFail?.fire();
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await Future.delayed(const Duration(seconds: 2));
+
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: pass,
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        _isLoading = false;
+      });
+
       _trigSuccess?.fire();
-    } else {
+
+      await Future.delayed(const Duration(seconds: 2));
+
+      if (!mounted) return;
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const ProductsScreen()),
+      );
+    } on FirebaseAuthException catch (error) {
+      if (!mounted) return;
+
+      setState(() {
+        _isLoading = false;
+        authError = error.code == 'network-request-failed'
+            ? 'No se pudo establecer conexión con Firebase.'
+            : 'Credenciales incorrectas en Firebase';
+      });
+
+      _trigFail?.fire();
+    } catch (_) {
+      if (!mounted) return;
+
+      setState(() {
+        _isLoading = false;
+        authError = 'No se pudo completar el inicio de sesión.';
+      });
+
       _trigFail?.fire();
     }
   }
@@ -211,18 +270,35 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 10),
+                if (authError != null) ...[
+                  Text(
+                    authError!,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                  const SizedBox(height: 10),
+                ],
                 MaterialButton(
                   minWidth: size.width,
                   height: 50,
-                  color: Colors.cyan,
+                  color: Colors.pinkAccent,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  onPressed: _onLogin,
-                  child: const Text(
-                    'Login',
-                    style: TextStyle(color: Colors.white),
-                  ),
+                  onPressed: _isLoading ? null : _onLogin,
+                  child: _isLoading
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Text(
+                          'Login',
+                          style: TextStyle(color: Colors.white),
+                        ),
                 ),
                 const SizedBox(height: 20),
                 SizedBox(
