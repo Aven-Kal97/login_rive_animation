@@ -32,22 +32,23 @@ class _LoginScreenState extends State<LoginScreen> {
   final emailCtrl = TextEditingController();
   final passCtrl = TextEditingController();
 
-  String? emailError;
-  String? passError;
-  String? authError;
-
   bool _isLoading = false;
 
-  bool isValidEmail(String email) {
-    final re = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
-    return re.hasMatch(email);
-  }
+  void _showLoginError() {
+    if (!mounted) return;
 
-  bool isValidPassword(String pass) {
-    final re = RegExp(
-      r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$',
+    _trigFail?.fire();
+
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Credenciales inválidas. Verifica tu correo y contraseña.',
+        ),
+        behavior: SnackBarBehavior.floating,
+      ),
     );
-    return re.hasMatch(pass);
   }
 
   Future<void> _onLogin() async {
@@ -56,31 +57,18 @@ class _LoginScreenState extends State<LoginScreen> {
     final email = emailCtrl.text.trim();
     final pass = passCtrl.text;
 
-    final emailTypedError = isValidEmail(email)
-        ? null
-        : 'Correo electrónico inválido';
-
-    final passwordTypedError = isValidPassword(pass)
-        ? null
-        : 'Contraseña inválida';
-
-    setState(() {
-      emailError = emailTypedError;
-      passError = passwordTypedError;
-      authError = null;
-    });
-
     FocusScope.of(context).unfocus();
-
     _typingDebounce?.cancel();
     _isChecking?.change(false);
     _isHandsUp?.change(false);
     _numLook?.value = 50.0;
 
-    if (emailTypedError != null || passwordTypedError != null) {
-      _trigFail?.fire();
+    if (email.isEmpty || pass.isEmpty) {
+      _showLoginError();
       return;
     }
+
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
     setState(() {
       _isLoading = true;
@@ -96,10 +84,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (!mounted) return;
 
-      setState(() {
-        _isLoading = false;
-      });
-
       _trigSuccess?.fire();
 
       await Future.delayed(const Duration(seconds: 2));
@@ -110,26 +94,14 @@ class _LoginScreenState extends State<LoginScreen> {
         context,
         MaterialPageRoute(builder: (_) => const ProductsScreen()),
       );
-    } on FirebaseAuthException catch (error) {
-      if (!mounted) return;
-
-      setState(() {
-        _isLoading = false;
-        authError = error.code == 'network-request-failed'
-            ? 'No se pudo establecer conexión con Firebase.'
-            : 'Credenciales incorrectas en Firebase';
-      });
-
-      _trigFail?.fire();
     } catch (_) {
       if (!mounted) return;
 
       setState(() {
         _isLoading = false;
-        authError = 'No se pudo completar el inicio de sesión.';
       });
 
-      _trigFail?.fire();
+      _showLoginError();
     }
   }
 
@@ -224,7 +196,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
-                    errorText: emailError,
                     hintText: 'Email@ejemplo.com',
                     prefixIcon: const Icon(Icons.email),
                     border: OutlineInputBorder(
@@ -242,7 +213,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                   obscureText: _isObscure,
                   decoration: InputDecoration(
-                    errorText: passError,
                     hintText: 'Password',
                     prefixIcon: const Icon(Icons.lock),
                     suffixIcon: IconButton(
@@ -270,14 +240,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                if (authError != null) ...[
-                  Text(
-                    authError!,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                  const SizedBox(height: 10),
-                ],
                 MaterialButton(
                   minWidth: size.width,
                   height: 50,
