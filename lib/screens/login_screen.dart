@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'products_screen.dart';
+import 'sign_up_screen.dart';
 
 import 'package:rive/rive.dart';
 
@@ -103,6 +104,22 @@ class _LoginScreenState extends State<LoginScreen> {
 
       _showLoginError();
     }
+  }
+
+  Future<void> _openSignUp() async {
+    final registered = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(builder: (_) => const SignUpScreen()),
+    );
+
+    if (!mounted || registered != true) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Cuenta creada correctamente. Inicia sesión.'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   @override
@@ -270,9 +287,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: [
                       const Text("Don't have an account?"),
                       TextButton(
-                        onPressed: () {},
+                        onPressed: _isLoading ? null : _openSignUp,
                         child: const Text(
-                          'Register',
+                          'Sign up',
                           style: TextStyle(
                             color: Colors.black,
                             decoration: TextDecoration.underline,
