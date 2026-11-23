@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'products_screen.dart';
+import 'password_reset_dialog.dart';
 import 'sign_up_screen.dart';
 
 import 'package:rive/rive.dart';
@@ -248,12 +249,37 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                SizedBox(
-                  width: size.width,
-                  child: const Text(
-                    'Forgot password?',
-                    textAlign: TextAlign.right,
-                    style: TextStyle(decoration: TextDecoration.underline),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: _isLoading
+                        ? null
+                        : () async {
+                            final sent = await showDialog<bool>(
+                              context: context,
+                              builder: (_) => PasswordResetDialog(
+                                initialEmail: emailCtrl.text.trim(),
+                              ),
+                            );
+
+                            if (!context.mounted || sent != true) return;
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Si la cuenta existe, recibirás un correo '
+                                  'para restablecer tu contraseña.',
+                                ),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          },
+                    child: const Text(
+                      'Forgot password?',
+                      style: TextStyle(
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 10),

@@ -1,10 +1,35 @@
 import 'dart:convert';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
+import 'login_screen.dart';
+
 import 'package:http/http.dart' as http;
 
 class ProductsScreen extends StatelessWidget {
   const ProductsScreen({super.key});
+
+  Future<void> _logout(BuildContext context) async {
+    try {
+      await FirebaseAuth.instance.signOut();
+
+      if (!context.mounted) return;
+
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute<void>(builder: (_) => const LoginScreen()),
+        (route) => false,
+      );
+    } catch (_) {
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No se pudo cerrar sesión. Inténtalo nuevamente.'),
+        ),
+      );
+    }
+  }
 
   static const String baseUrl = 'http://10.0.2.2:8090';
 
@@ -21,7 +46,16 @@ class ProductsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Productos de Spring Boot')),
+      appBar: AppBar(
+        title: const Text('Productos de Spring Boot'),
+        actions: [
+          IconButton(
+            tooltip: 'Cerrar sesión',
+            icon: const Icon(Icons.logout),
+            onPressed: () => _logout(context),
+          ),
+        ],
+      ),
       body: FutureBuilder<List<dynamic>>(
         future: fetchProducts(),
         builder: (context, snapshot) {
@@ -39,10 +73,15 @@ class ProductsScreen extends StatelessWidget {
             itemCount: products.length,
             itemBuilder: (context, index) {
               final product = products[index];
+              final category =
+                  product['category']?['category']?.toString() ??
+                  'Sin categoría';
 
               return ListTile(
                 title: Text(product['name'].toString()),
-                subtitle: Text('Stock: ${product['stock']}'),
+                subtitle: Text(
+                  'Categoría: $category\nStock: ${product['stock']}',
+                ),
                 trailing: Text('\$${product['price']}'),
               );
             },
