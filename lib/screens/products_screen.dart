@@ -73,11 +73,29 @@ class ProductsScreen extends StatelessWidget {
             itemCount: products.length,
             itemBuilder: (context, index) {
               final product = products[index];
+              final imageUrl = (product['imageUrl'] ?? '').toString().trim();
               final category =
                   product['category']?['category']?.toString() ??
                   'Sin categoría';
 
               return ListTile(
+                leading: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: SizedBox(
+                    width: 64,
+                    height: 64,
+                    child: imageUrl.isEmpty
+                        ? const Icon(Icons.image_not_supported)
+                        : Image.network(
+                            imageUrl,
+                            width: 64,
+                            height: 64,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Icon(Icons.image_not_supported),
+                          ),
+                  ),
+                ),
                 title: Text(product['name'].toString()),
                 subtitle: Text(
                   'Categoría: $category\nStock: ${product['stock']}',
